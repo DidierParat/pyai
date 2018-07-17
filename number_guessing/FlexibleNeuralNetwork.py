@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 
 LOG = logging.getLogger('FlexibleNeuralNetwork')
 
@@ -10,13 +11,19 @@ class FlexibleNeuralNetwork:
     def add_layer(self, neural_network_layer):
         self.layers.append(neural_network_layer)
 
+    def predict(self, input):
+        layer_output = input
+        for i in range(len(self.layers)):
+            layer = self.layers[i]
+            layer_output = layer.feed_forward(layer_output)
+        return layer_output
+
     def train(self, training_set):
         if not self.layers:
             print("No neural network layers set.")
             return
 
-        layer_output = None
-        final_output = None
+        loss = None
         for (training_input, expected_output) in training_set:
             # feed forward
             layer_output = training_input
@@ -30,7 +37,9 @@ class FlexibleNeuralNetwork:
                 layer_output = layer.feed_forward(layer_output)
                 layers_output.append(layer_output)
                 LOG.debug("ff: layer_output: {}".format(layer_output))
-            final_output = layer_output
+
+            # compute loss
+            loss = np.sum(np.square(layer_output - expected_output))
 
             # back propagate
             partial_diff_of_cost_to_output = 2 * (expected_output - layer_output)
@@ -43,4 +52,4 @@ class FlexibleNeuralNetwork:
                 LOG.debug("bp: layer_input: {}".format(layer_input))
                 partial_diff_of_cost_to_output = layer.back_propagate(
                     layer_input, layer_output, partial_diff_of_cost_to_output)
-        return final_output
+        return loss

@@ -41,3 +41,11 @@ if __name__ == "__main__":
         nn.backprop()
 
     print(nn.output)
+
+    X = np.array([[0]])
+    y = np.array([[1]])
+    nn = NeuralNetwork(X, y)
+    for i in range(500):
+        nn.feedforward()
+        nn.backprop()
+    print(nn.output)
